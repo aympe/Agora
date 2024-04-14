@@ -31,8 +31,7 @@ let joinAndDisplayLocalStream = async () => {
 
 let joinStream = async () => {
   await joinAndDisplayLocalStream();
-  document.getElementById("join-btn").style.display = "none";
-  document.getElementById("stream-controls").style.display = "flex";
+
 };
 
 let handleUserJoined = async (user, mediaType) => {
@@ -72,9 +71,6 @@ let leaveAndRemoveLocalStream = async () => {
   }
 
   await client.leave();
-  document.getElementById("join-btn").style.display = "block";
-  document.getElementById("stream-controls").style.display = "none";
-  document.getElementById("video-streams").innerHTML = "";
 };
 
 let toggleMic = async (e) => {
