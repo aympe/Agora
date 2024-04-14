@@ -36,7 +36,7 @@ async function startBasicLiveStreaming(channelName, token) {
   client.remoteUsers.forEach(async user => {
     await client.subscribe(user, "video");
     console.log("Subscribed to existing user:", user.uid);
-    addVideoStream(user.uid);
+    addVideoStream(user);
     if (user.audioTrack) {
       user.audioTrack.play(); // Handle audio playing accordingly
     }
@@ -64,7 +64,7 @@ function setupStreamEventHandlers() {
     console.log("Subscribed to user:", user.uid);
 
     if (mediaType === "video") {
-      addVideoStream(user.uid);
+      addVideoStream(user);
     }
 
     if (mediaType === "audio") {
@@ -84,14 +84,13 @@ function setupStreamEventHandlers() {
 }
 
 // Function to add video stream to the UI
-function addVideoStream(uid) {
+function addVideoStream(user) {
   const box = document.getElementById("box");
-  const videoDivId = `video-${uid}`;
+  const videoDivId = `video-${user.uid}`;
   if (!document.getElementById(videoDivId)) {
-    const playerDiv = createVideoContainer(uid);
+    const playerDiv = createVideoContainer(user.uid);
     box.appendChild(playerDiv);
-    const user = client.remoteUsers.find(user => user.uid === uid);
-    if (user && user.hasVideo) {
+    if (user.videoTrack) {
       user.videoTrack.play(videoDivId);
     }
   }
