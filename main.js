@@ -6,7 +6,7 @@ let localTracks = {
 };
 
 // Configuration for your Agora client - replace with your own App ID
-const AGORA_APP_ID = "YOUR_AGORA_APP_Ia39c70c4d8974c89ad56a89655a1dbf1";
+const AGORA_APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
 
 async function startBasicLiveStreaming(channelName, token) {
   // Create and initialize the client in RTC mode
