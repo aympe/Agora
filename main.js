@@ -9,97 +9,65 @@ let localTracks = {
 // Configuration for your Agora client - replace with your own App ID
 const AGORA_APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
 
-
-// Function to start the basic live streaming
 async function startBasicLiveStreaming(channelName, token) {
-  // Initialize the Agora client in RTC mode with VP8 codec
+  // Create and initialize the client in RTC mode
   client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
   await client.join(AGORA_APP_ID, channelName, token, null);
 
-  // Create and publish local video and audio tracks
+  // Create and publish the local tracks
   localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
   localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
 
-  // Setup the local video stream container
-  const localVideoDiv = createVideoContainer("local-stream");
-  document.getElementById("box").appendChild(localVideoDiv);
-  localTracks.videoTrack.play(`video-local-stream`);
+  // Set up the local video stream container
+  const box = document.getElementById("box");
+  const localVideoDiv = document.createElement("div");
+  localVideoDiv.id = "local-stream";
+  localVideoDiv.className = "video-container"; // Assign class
+  box.appendChild(localVideoDiv);
+  localTracks.videoTrack.play("local-stream");
 
-  // Publish the local tracks
+  // Publish the local streams
   await client.publish(Object.values(localTracks));
   console.log("Publishing local streams");
 
-  // Handle event streams for users
-  setupStreamEventHandlers();
-
-  // Manage existing users in the channel
-  client.remoteUsers.forEach(async user => {
-    await client.subscribe(user, "video");
-    console.log("Subscribed to existing user:", user.uid);
-    addVideoStream(user);
-    if (user.audioTrack) {
-      user.audioTrack.play(); // Handle audio playing accordingly
-    }
-  });
-}
-
-// Function to create a video container for the user
-function createVideoContainer(uid) {
-  const playerDiv = document.createElement("div");
-  playerDiv.className = "video-container";
-  playerDiv.id = `video-container-${uid}`;
-
-  const videoElement = document.createElement("div");
-  videoElement.id = `video-${uid}`;
-  playerDiv.appendChild(videoElement);
-
-  return playerDiv;
-}
-
-// Function to set up stream event handlers
-function setupStreamEventHandlers() {
+  // Subscribe to remote streams
   client.on("user-published", async (user, mediaType) => {
-    // Subscribe to the newly published stream
     await client.subscribe(user, mediaType);
     console.log("Subscribed to user:", user.uid);
 
     if (mediaType === "video") {
-      addVideoStream(user);
+      let remoteVideoDivId = `remote-video-${user.uid}`;
+      if (!document.getElementById(remoteVideoDivId)) {
+        let playerDiv = document.createElement("div");
+        playerDiv.id = remoteVideoDivId;
+        playerDiv.className = "video-container"; // Assign class
+        box.appendChild(playerDiv);
+        user.videoTrack.play(remoteVideoDivId);
+      }
     }
 
     if (mediaType === "audio") {
-      user.audioTrack.play(); // Handle audio playing accordingly
+      user.audioTrack.play(); // Audio is played but not displayed
     }
   });
 
-  client.on("user-unpublished", user => {
+  client.on("user-unpublished", (user, mediaType) => {
     console.log(`User unpublished ${user.uid}`);
-    removeVideoStream(user.uid);
-  });
-
-  client.on("user-left", user => {
-    console.log(`User left ${user.uid}`);
-    removeVideoStream(user.uid);
-  });
-}
-
-// Function to add video stream to the UI
-function addVideoStream(user) {
-  const box = document.getElementById("box");
-  const videoDivId = `video-${user.uid}`;
-  if (!document.getElementById(videoDivId)) {
-    const playerDiv = createVideoContainer(user.uid);
-    box.appendChild(playerDiv);
-    if (user.videoTrack) {
-      user.videoTrack.play(videoDivId);
+    // Remove the video element when they are no longer publishing
+    if (mediaType === "video") {
+      let remoteVideoDiv = document.getElementById(`remote-video-${user.uid}`);
+      if (remoteVideoDiv) {
+        remoteVideoDiv.parentNode.removeChild(remoteVideoDiv);
+      }
     }
-  }
-}
+  });
 
-// Function to remove video stream from the UI
-function removeVideoStream(uid) {
-  const videoContainer = document.getElementById(`video-container-${uid}`);
-  if (videoContainer) {
-    videoContainer.parentNode.removeChild(videoContainer);
-  }
+  client.on("user-left", (user) => {
+    console.log(`User left ${user.uid}`);
+    // Remove the video element if the user leaves the channel
+    let remoteVideoDiv = document.getElementById(`remote-video-${user.uid}`);
+    if (remoteVideoDiv) {
+      remoteVideoDiv.parentNode.removeChild(remoteVideoDiv);
+    }
+  });
 }
