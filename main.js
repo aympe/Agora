@@ -1,73 +1,102 @@
-// Define global variables for Agora client and local streams
-let client;
+const APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
+const TOKEN =
+  "007eJxTYGhf41egw5Bh37uhoPDcbudlX6dm69Q/cJs/+aD0v+61hQ8VGBKNLZPNDZJNUiwszU2SLSwTU0zNEi0szUxNEw1TktIMn7rLpDUEMjKEX/nDwAiFID4LQ4hrcAgDAwCUjSCF";
+const CHANNEL = "TEST";
+
+const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+
+let localTracks = [];
 let remoteUsers = {};
-let localTracks = {
-  videoTrack: null,
-  audioTrack: null,
+
+let joinAndDisplayLocalStream = async () => {
+  client.on("user-published", handleUserJoined);
+
+  client.on("user-left", handleUserLeft);
+
+  let UID = await client.join(APP_ID, CHANNEL, TOKEN, null);
+
+  localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
+
+  let player = `<div class="video-container" id="user-container-${UID}">
+                        <div class="video-player" id="user-${UID}"></div>
+                  </div>`;
+  document
+    .getElementById("video-streams")
+    .insertAdjacentHTML("beforeend", player);
+
+  localTracks[1].play(`user-${UID}`);
+
+  await client.publish([localTracks[0], localTracks[1]]);
 };
 
-// Configuration for your Agora client - replace with your own App ID
-const AGORA_APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
+let joinStream = async () => {
+  await joinAndDisplayLocalStream();
+  document.getElementById("join-btn").style.display = "none";
+  document.getElementById("stream-controls").style.display = "flex";
+};
 
-async function startBasicLiveStreaming(channelName, token) {
-  // Create and initialize the client in RTC mode
-  client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-  await client.join(AGORA_APP_ID, channelName, token, null);
+let handleUserJoined = async (user, mediaType) => {
+  remoteUsers[user.uid] = user;
+  await client.subscribe(user, mediaType);
 
-  // Create and publish the local tracks
-  localTracks.videoTrack = await AgoraRTC.createCameraVideoTrack();
-  localTracks.audioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-
-  // Set up the local video stream container
-  const box = document.getElementById("box");
-  const localVideoDiv = document.createElement("div");
-  localVideoDiv.id = "local-stream";
-  localVideoDiv.className = "video-container"; // Assign class
-  box.appendChild(localVideoDiv);
-  localTracks.videoTrack.play("local-stream");
-
-  // Publish the local streams
-  await client.publish(Object.values(localTracks));
-  console.log("Publishing local streams");
-
-  // Subscribe to remote streams
-  client.on("user-published", async (user, mediaType) => {
-    await client.subscribe(user, mediaType);
-    console.log("Subscribed to user:", user.uid);
-
-    if (mediaType === "video") {
-      let remoteVideoDivId = `remote-video-${user.uid}`;
-      if (!document.getElementById(remoteVideoDivId)) {
-        let playerDiv = document.createElement("div");
-        playerDiv.id = remoteVideoDivId;
-        playerDiv.className = "video-container"; // Assign class
-        box.appendChild(playerDiv);
-        user.videoTrack.play(remoteVideoDivId);
-      }
+  if (mediaType === "video") {
+    let player = document.getElementById(`user-container-${user.uid}`);
+    if (player != null) {
+      player.remove();
     }
 
-    if (mediaType === "audio") {
-      user.audioTrack.play(); // Audio is played but not displayed
-    }
-  });
+    player = `<div class="video-container" id="user-container-${user.uid}">
+                        <div class="video-player" id="user-${user.uid}"></div> 
+                 </div>`;
+    document
+      .getElementById("video-streams")
+      .insertAdjacentHTML("beforeend", player);
 
-  client.on("user-unpublished", (user, mediaType) => {
-    console.log(`User unpublished ${user.uid}`);
-    // Remove the video element when they are no longer publishing
-    if (mediaType === "video") {
-      let remoteVideoDiv = document.getElementById(`remote-video-${user.uid}`);
-      if (remoteVideoDiv) {
-        remoteVideoDiv.parentNode.removeChild(remoteVideoDiv);
-      }
-    }
-  });
+    user.videoTrack.play(`user-${user.uid}`);
+  }
 
-  client.on("user-left", (user) => {
-    console.log(`User left ${user.uid}`);
-    // Remove the video element if the user leaves the channel
-    let remoteVideoDiv = document.getElementById(`remote-video-${user.uid}`);
-    if (remoteVideoDiv) {
-      remoteVideoDiv.parentNode.removeChild(remoteVideoDiv);
-    }
-  });
-}
+  if (mediaType === "audio") {
+    user.audioTrack.play();
+  }
+};
+
+let handleUserLeft = async (user) => {
+  delete remoteUsers[user.uid];
+  document.getElementById(`user-container-${user.uid}`).remove();
+};
+
+let leaveAndRemoveLocalStream = async () => {
+  for (let i = 0; localTracks.length > i; i++) {
+    localTracks[i].stop();
+    localTracks[i].close();
+  }
+
+  await client.leave();
+  document.getElementById("join-btn").style.display = "block";
+  document.getElementById("stream-controls").style.display = "none";
+  document.getElementById("video-streams").innerHTML = "";
+};
+
+let toggleMic = async (e) => {
+  if (localTracks[0].muted) {
+    await localTracks[0].setMuted(false);
+    e.target.innerText = "Mic on";
+    e.target.style.backgroundColor = "cadetblue";
+  } else {
+    await localTracks[0].setMuted(true);
+    e.target.innerText = "Mic off";
+    e.target.style.backgroundColor = "#EE4B2B";
+  }
+};
+
+let toggleCamera = async (e) => {
+  if (localTracks[1].muted) {
+    await localTracks[1].setMuted(false);
+    e.target.innerText = "Camera on";
+    e.target.style.backgroundColor = "cadetblue";
+  } else {
+    await localTracks[1].setMuted(true);
+    e.target.innerText = "Camera off";
+    e.target.style.backgroundColor = "#EE4B2B";
+  }
+};
