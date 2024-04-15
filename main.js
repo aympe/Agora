@@ -29,6 +29,8 @@ let joinAndDisplayLocalStream = async () => {
   localTracks[1].play(`user-${UID}`);
 
   await client.publish([localTracks[0], localTracks[1]]);
+  checkCam();
+  checkMic();
 };
 
 let joinStream = async () => {
@@ -88,10 +90,10 @@ let toggleMic = async (e) => {
 let toggleCamera = async (e) => {
   if (localTracks[1].muted) {
     await localTracks[1].setMuted(false);
-    checkMic()
+    checkCam();
   } else {
     await localTracks[1].setMuted(true);
-    checkMic();
+    checkCam();
   }
 };
 
