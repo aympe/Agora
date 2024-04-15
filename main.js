@@ -103,11 +103,11 @@ let checkMic = () => {
   if (localTracks.length > 0 && localTracks[0]) {
     // Check if the microphone track is available
     micIsOn = !localTracks[0].muted ? "micIsOn" : "micIsOff"; // Correctly reflect mic status based on the muted property
-    console.log("Microphone status:", micIsOn === "micIsOn" ? "on" : "off");
+    console.log("micIsOn");
     bubble_fn_Mic("micIsOn");
   } else {
     micIsOn = "micIsOff";
-    console.log("Microphone track is not available.");
+    console.log("micIsOff");
     bubble_fn_Mic("micIsOff");
   }
 };
