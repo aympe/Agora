@@ -111,12 +111,15 @@ let checkMic = () => {
 
 let checkCam = () => {
   if (localTracks.length > 0 && localTracks[1]) {
-    cameraIsOn = !localTracks[1].muted; // Check if the camera track is not muted
-    console.log("Camera is on:", cameraIsOn); // Fixed variable name in log
-    bubble_fn_Cam(cameraIsOn); // Correct function to reflect camera status
+    // Assuming localTracks[1] is the camera track.
+    // Additional checks might be needed to accurately determine if the camera is "on".
+    // Check if the camera track is not muted and is enabled/active if those properties are available.
+    cameraIsOn = !localTracks[1].muted; // This assumes 'muted' means the camera is not sending any video.
+    console.log("Camera is on:", cameraIsOn);
+    bubble_fn_Cam(cameraIsOn);
   } else {
-    cameraIsOn = false; // Set cameraIsOn to false if the track is not available
+    cameraIsOn = false; // Camera track is not available
     console.log("Camera is not available.");
-    bubble_fn_Cam(cameraIsOn); // Use the correct function for camera
+    bubble_fn_Cam(cameraIsOn);
   }
 };
