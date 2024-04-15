@@ -99,7 +99,7 @@ let toggleCamera = async (e) => {
   }
 };
 
-let checkMic = async (e) => {
+let checkMic = async () => {
   try {
     micIsOn = false;
     console.log(micIsOn);
