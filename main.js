@@ -99,7 +99,13 @@ let toggleCamera = async (e) => {
   }
 };
 
-let checkMic = () => {
-  micIsOn = false;
-  console.log("Microphone status:", micIsOn);
+let checkMic = async (e) => {
+  if (localTracks[1].muted) {
+    micIsOn = false
+    console.Log(micIsOn)
+  } else {
+    await localTracks[1].setMuted(true);
+    micIsOn = true;
+    console.Log(micIsOn);
+  }
 };
