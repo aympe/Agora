@@ -2,8 +2,8 @@ const APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
 const TOKEN =
   "007eJxTYGhf41egw5Bh37uhoPDcbudlX6dm69Q/cJs/+aD0v+61hQ8VGBKNLZPNDZJNUiwszU2SLSwTU0zNEi0szUxNEw1TktIMn7rLpDUEMjKEX/nDwAiFID4LQ4hrcAgDAwCUjSCF";
 const CHANNEL = "TEST";
-let cameraIsOn;
-let micIsOn;
+let cameraIsOn = "";
+let micIsOn = "";
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
@@ -102,10 +102,11 @@ let toggleCamera = async (e) => {
 let checkMic = () => {
   if (localTracks.length > 0 && localTracks[0]) {
     // Check if the microphone track is available
-    micIsOn = !localTracks[0].muted; // `micIsOn` is true if the mic is not muted
+    micIsOn = "micIsOn" // `micIsOn` is true if the mic is not muted
     console.log("Microphone is on:", micIsOn);
     bubble_fn_Mic(micIsOn);
   } else {
+    micIsOn = "micIsOff";
     console.log("Microphone track is not available.");
     bubble_fn_Mic(micIsOn);
   }
