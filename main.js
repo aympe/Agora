@@ -101,6 +101,10 @@ let toggleCamera = async (e) => {
 };
 
 let checkMic = async (e) => {
-    micIsOn = false
-    console.log(micIsOn)
-  };
+  try {
+    micIsOn = false;
+    console.log(micIsOn);
+  } catch (error) {
+    console.error("Error in checkMic:", error);
+  }
+};
