@@ -54,7 +54,6 @@ let handleUserJoined = async (user, mediaType) => {
       .insertAdjacentHTML("beforeend", player);
 
     user.videoTrack.play(`user-${user.uid}`);
-    checkMic();
   }
 
   if (mediaType === "audio") {
