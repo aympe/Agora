@@ -2,7 +2,7 @@ const APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
 const TOKEN =
   "007eJxTYGhf41egw5Bh37uhoPDcbudlX6dm69Q/cJs/+aD0v+61hQ8VGBKNLZPNDZJNUiwszU2SLSwTU0zNEi0szUxNEw1TktIMn7rLpDUEMjKEX/nDwAiFID4LQ4hrcAgDAwCUjSCF";
 const CHANNEL = "TEST";
-let cameraIsOn = "";
+let cameraIsOn;
 let micIsOn;
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
@@ -78,24 +78,20 @@ let leaveAndRemoveLocalStream = async () => {
 let toggleMic = async (e) => {
   if (localTracks[0].muted) {
     await localTracks[0].setMuted(false);
-    e.target.innerText = "Mic on";
-    e.target.style.backgroundColor = "cadetblue";
+    checkMic();
   } else {
     await localTracks[0].setMuted(true);
-    e.target.innerText = "Mic off";
-    e.target.style.backgroundColor = "#EE4B2B";
+    checkMic();
   }
 };
 
 let toggleCamera = async (e) => {
   if (localTracks[1].muted) {
     await localTracks[1].setMuted(false);
-    e.target.innerText = "Camera on";
-    e.target.style.backgroundColor = "cadetblue";
+    checkMic()
   } else {
     await localTracks[1].setMuted(true);
-    e.target.innerText = "Camera off";
-    e.target.style.backgroundColor = "#EE4B2B";
+    checkMic();
   }
 };
 
@@ -108,5 +104,17 @@ let checkMic = () => {
   } else {
     console.log("Microphone track is not available.");
     bubble_fn_Mic(micIsOn);
+  }
+};
+
+let checkCam = () => {
+  if (localTracks.length > 0 && localTracks[1]) {
+    cameraIsOn = !localTracks[1].muted; // Check if the camera track is not muted
+    console.log("Camera is on:", cameraIsOn); // Fixed variable name in log
+    bubble_fn_Cam(cameraIsOn); // Correct function to reflect camera status
+  } else {
+    cameraIsOn = false; // Set cameraIsOn to false if the track is not available
+    console.log("Camera is not available.");
+    bubble_fn_Cam(cameraIsOn); // Use the correct function for camera
   }
 };
