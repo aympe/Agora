@@ -101,12 +101,6 @@ let toggleCamera = async (e) => {
 };
 
 let checkMic = async (e) => {
-  if (localTracks[0].muted) {
     micIsOn = false
     console.log(micIsOn)
-    bubble_fn_Mic(micIsOn);
-  } else {
-    micIsOn = true;
-    bubble_fn_Mic(micIsOn);
-  }
-};
+  };
