@@ -102,8 +102,8 @@ let toggleCamera = async (e) => {
 let checkMic = () => {
   if (localTracks.length > 0 && localTracks[0]) {
     // Check if the microphone track is available
-    micIsOn = "micIsOn" // `micIsOn` is true if the mic is not muted
-    console.log("Microphone is on:", micIsOn);
+    micIsOn = !localTracks[0].muted ? "micIsOn" : "micIsOff"; // Correctly reflect mic status based on the muted property
+    console.log("Microphone status:", micIsOn === "micIsOn" ? "on" : "off");
     bubble_fn_Mic(micIsOn);
   } else {
     micIsOn = "micIsOff";
@@ -111,3 +111,4 @@ let checkMic = () => {
     bubble_fn_Mic(micIsOn);
   }
 };
+
