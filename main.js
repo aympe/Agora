@@ -2,6 +2,8 @@ const APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
 const TOKEN =
   "007eJxTYGhf41egw5Bh37uhoPDcbudlX6dm69Q/cJs/+aD0v+61hQ8VGBKNLZPNDZJNUiwszU2SLSwTU0zNEi0szUxNEw1TktIMn7rLpDUEMjKEX/nDwAiFID4LQ4hrcAgDAwCUjSCF";
 const CHANNEL = "TEST";
+const cameraIsOn = true
+const micIsOn = true;
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
@@ -52,6 +54,7 @@ let handleUserJoined = async (user, mediaType) => {
       .insertAdjacentHTML("beforeend", player);
 
     user.videoTrack.play(`user-${user.uid}`);
+    checkMic();
   }
 
   if (mediaType === "audio") {
@@ -94,5 +97,16 @@ let toggleCamera = async (e) => {
     await localTracks[1].setMuted(true);
     e.target.innerText = "Camera off";
     e.target.style.backgroundColor = "#EE4B2B";
+  }
+};
+
+let checkMic = async (e) => {
+  if (localTracks[0].muted) {
+    micIsOn = false
+    console.log(micIsOn)
+    bubble_fn_Mic(micIsOn);
+  } else {
+    micIsOn = true;
+    bubble_fn_Mic(micIsOn);
   }
 };
