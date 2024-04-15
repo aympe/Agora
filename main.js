@@ -2,8 +2,8 @@ const APP_ID = "a39c70c4d8974c89ad56a89655a1dbf1";
 const TOKEN =
   "007eJxTYGhf41egw5Bh37uhoPDcbudlX6dm69Q/cJs/+aD0v+61hQ8VGBKNLZPNDZJNUiwszU2SLSwTU0zNEi0szUxNEw1TktIMn7rLpDUEMjKEX/nDwAiFID4LQ4hrcAgDAwCUjSCF";
 const CHANNEL = "TEST";
-let cameraIsOn = true
-let micIsOn = true;
+let cameraIsOn;
+let micIsOn;
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
